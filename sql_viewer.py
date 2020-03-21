@@ -27,7 +27,7 @@ class SQLViewer(QDialog):
 
     @pyqtSlot()
     def query_db(self):
-        query = self.container.findChildren(QTextEdit)[0].toPlainText()  
+        query = self.text_edit.toPlainText()  
         with engine.connect() as db:
             try:
                 results = db.execute(sqlalchemy.text(query))
@@ -42,18 +42,18 @@ class SQLViewer(QDialog):
         results = np.array([r for r in results])
         if len(results) == 0:
             return    
-        self.container.findChildren(QTableWidget)[0]\
+        self.table\
             .setRowCount(len(results) + 1)
-        self.container.findChildren(QTableWidget)[0]\
+        self.table\
             .setColumnCount(results.shape[1])
 
         for i, column in enumerate(columns):
-            self.container.findChildren(QTableWidget)[0]\
+            self.table\
                 .setItem(0, i, QTableWidgetItem(str(column)))
 
         for i, row in enumerate(results):
             for j, item in enumerate(row):
-                self.container.findChildren(QTableWidget)[0]\
+                self.table\
                     .setItem(i + 1, j, QTableWidgetItem(str(item)))
 
     def create_container(self):
@@ -63,7 +63,7 @@ class SQLViewer(QDialog):
 
         tab1 = QWidget()
         tableWidget = QTableWidget(10, 10)
-
+        self.table = tableWidget
         tab1hbox = QHBoxLayout()
         tab1hbox.setContentsMargins(5, 5, 5, 5)
         tab1hbox.addWidget(tableWidget)
@@ -71,13 +71,13 @@ class SQLViewer(QDialog):
 
         tab2 = QWidget()
         textEdit = QTextEdit()
-
+        self.text_edit = textEdit
         textEdit.setPlainText("SELECT 1 as NUM")
 
         tab2hbox = QHBoxLayout()
         tab2hbox.setContentsMargins(5, 5, 5, 5)
         tab2hbox.addWidget(textEdit)
-        bb = QPushButton('Send query!')
+        bb = QPushButton('Send SQL!')
 
         bb.clicked.connect(self.query_db)
 
