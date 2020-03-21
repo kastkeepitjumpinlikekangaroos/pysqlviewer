@@ -5,10 +5,11 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
         QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
         QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,
         QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
-        QVBoxLayout, QWidget)
+        QVBoxLayout, QWidget, QTableWidgetItem)
 import sys
 from PyQt5.QtCore import pyqtSlot
 from db import get_db
+import numpy as np
 
 
 class SQLViewer(QDialog):
@@ -29,8 +30,16 @@ class SQLViewer(QDialog):
         with get_db() as db:
             query = self.container.currentWidget().children()[1].toPlainText()
             results = db.execute(query)
-            print([r for r in results])
-             
+            results = np.array([r for r in results])
+            self.container.children()[0].children()[0].children()[1].setRowCount(len(results))
+            self.container.children()[0].children()[0].children()[1].setColumnCount(results.shape[1])
+            print(results)
+            for i, row in enumerate(results):
+                for j, item in enumerate(row):
+                    print((i, j), item)
+                    self.container.children()[0].children()[0].children()[1]\
+                        .setItem(i, j, QTableWidgetItem(item));
+ 
     def create_container(self):
         self.container = QTabWidget()
         self.container.setSizePolicy(QSizePolicy.Preferred,
