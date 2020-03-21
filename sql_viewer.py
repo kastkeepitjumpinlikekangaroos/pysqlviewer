@@ -31,15 +31,15 @@ class SQLViewer(QDialog):
         with engine.connect() as db:
             try:
                 results = db.execute(sqlalchemy.text(query))
+                columns = results.keys()
+                results = np.array([r for r in results])
             except BaseException as e:
                 print(e, type(e))
-                return
-        
-        for clause in ['UPDATE', 'INSERT', 'DELETE']:
-            if clause in query.upper():
-                return
-        columns = results.keys()
-        results = np.array([r for r in results])
+                if type(e) == AttributeError:
+                    results = []
+                else:
+                    return
+           
         if len(results) == 0:
             return    
         self.table\
