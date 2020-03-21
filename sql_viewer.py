@@ -29,7 +29,11 @@ class SQLViewer(QDialog):
     def query_db(self):
         query = self.container.findChildren(QTextEdit)[0].toPlainText()  
         with engine.connect() as db:
-            results = db.execute(sqlalchemy.text(query))
+            try:
+                results = db.execute(sqlalchemy.text(query))
+            except BaseException as e:
+                print(e, type(e))
+                return
         
         for clause in ['UPDATE', 'INSERT', 'DELETE']:
             if clause in query.upper():
