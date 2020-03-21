@@ -28,8 +28,8 @@ class SQLViewer(QDialog):
     @pyqtSlot()
     def query_db(self):
         query = self.container.findChildren(QTextEdit)[0].toPlainText()  
-        db = engine.connect()
-        results = db.execute(query)
+        with engine.connect() as db:
+            results = db.execute(sqlalchemy.text(query))
         
         for clause in ['UPDATE', 'INSERT', 'DELETE']:
             if clause in query.upper():
