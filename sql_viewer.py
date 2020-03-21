@@ -36,7 +36,8 @@ class SQLViewer(QDialog):
                 return
         columns = results.keys()
         results = np.array([r for r in results])
-            
+        if len(results) == 0:
+            return    
         self.container.findChildren(QTableWidget)[0]\
             .setRowCount(len(results) + 1)
         self.container.findChildren(QTableWidget)[0]\
