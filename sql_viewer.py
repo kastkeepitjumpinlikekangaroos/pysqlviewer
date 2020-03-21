@@ -1,11 +1,11 @@
 #!venv/bin/python
 
-from PyQt5.QtCore import QDateTime, Qt, QTimer
-from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
-        QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-        QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,
-        QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
-        QVBoxLayout, QWidget, QTableWidgetItem)
+from PyQt5.QtWidgets import (
+    QApplication, QDialog, QGridLayout,
+    QHBoxLayout, QPushButton, QSizePolicy,
+    QTableWidget, QTabWidget, QTextEdit,
+    QWidget, QTableWidgetItem
+)
 import sys
 from PyQt5.QtCore import pyqtSlot
 from db import get_db
@@ -22,56 +22,53 @@ class SQLViewer(QDialog):
         main_layout.setRowStretch(5, 1)
         main_layout.setColumnStretch(1, 1)
         self.setLayout(main_layout)
-
         self.setWindowTitle("pysqlviewer")
-    
+
     @pyqtSlot()
     def query_db(self):
         with get_db() as db:
             query = self.container.findChildren(QTextEdit)[0].toPlainText()
             results = db.execute(query)
             columns = results.keys()
-            print(columns)
             results = np.array([r for r in results])
-            self.container.findChildren(QTableWidget)[0].setRowCount(len(results) + 1)
-            self.container.findChildren(QTableWidget)[0].setColumnCount(results.shape[1])
-            print(results)
+            self.container.findChildren(QTableWidget)[0]\
+                .setRowCount(len(results) + 1)
+            self.container.findChildren(QTableWidget)[0]\
+                .setColumnCount(results.shape[1])
 
-            for i, column in enumerate(columns):        
+            for i, column in enumerate(columns):
                 self.container.findChildren(QTableWidget)[0]\
-                        .setItem(0, i, QTableWidgetItem(str(column)))
+                    .setItem(0, i, QTableWidgetItem(str(column)))
 
             for i, row in enumerate(results):
                 for j, item in enumerate(row):
-                    print((i + 1, j), item)
                     self.container.findChildren(QTableWidget)[0]\
                         .setItem(i + 1, j, QTableWidgetItem(str(item)))
- 
+
     def create_container(self):
         self.container = QTabWidget()
         self.container.setSizePolicy(QSizePolicy.Preferred,
-                QSizePolicy.Ignored)
+                                     QSizePolicy.Ignored)
 
         tab1 = QWidget()
         tableWidget = QTableWidget(10, 10)
 
         tab1hbox = QHBoxLayout()
         tab1hbox.setContentsMargins(5, 5, 5, 5)
-        tab1hbox.addWidget(tableWidget)        
+        tab1hbox.addWidget(tableWidget)
         tab1.setLayout(tab1hbox)
-        
+
         tab2 = QWidget()
         textEdit = QTextEdit()
 
-        textEdit.setPlainText("Enter SQL here: ")
+        textEdit.setPlainText("SELECT 1 as NUM")
 
         tab2hbox = QHBoxLayout()
         tab2hbox.setContentsMargins(5, 5, 5, 5)
         tab2hbox.addWidget(textEdit)
         bb = QPushButton('Send query!')
-        
-        bb.clicked.connect(self.query_db)
 
+        bb.clicked.connect(self.query_db)
 
         tab2hbox.addWidget(bb)
         tab2.setLayout(tab2hbox)
@@ -79,8 +76,9 @@ class SQLViewer(QDialog):
         self.container.addTab(tab2, "Enter query")
         self.container.addTab(tab1, "Query results")
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     gallery = SQLViewer()
     gallery.show()
-    sys.exit(app.exec_()) 
+    sys.exit(app.exec_())
