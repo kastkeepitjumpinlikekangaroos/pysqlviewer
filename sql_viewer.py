@@ -1,4 +1,4 @@
-#!/usr/bin/venv python
+#!venv/bin/python
 
 from PyQt5.QtCore import QDateTime, Qt, QTimer
 from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
@@ -27,9 +27,10 @@ class SQLViewer(QDialog):
     @pyqtSlot()
     def query_db(self):
         with get_db() as db:
-            #results = db.execute('select * from test')
-            #print([r for r in results])
-            print(dir(self.container)) 
+            query = self.container.currentWidget().children()[1].toPlainText()
+            results = db.execute(query)
+            print([r for r in results])
+             
     def create_container(self):
         self.container = QTabWidget()
         self.container.setSizePolicy(QSizePolicy.Preferred,
