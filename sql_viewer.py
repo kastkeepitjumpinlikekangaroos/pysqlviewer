@@ -30,15 +30,22 @@ class SQLViewer(QDialog):
         with get_db() as db:
             query = self.container.findChildren(QTextEdit)[0].toPlainText()
             results = db.execute(query)
+            columns = results.keys()
+            print(columns)
             results = np.array([r for r in results])
-            self.container.findChildren(QTableWidget)[0].setRowCount(len(results))
+            self.container.findChildren(QTableWidget)[0].setRowCount(len(results) + 1)
             self.container.findChildren(QTableWidget)[0].setColumnCount(results.shape[1])
             print(results)
+
+            for i, column in enumerate(columns):        
+                self.container.findChildren(QTableWidget)[0]\
+                        .setItem(0, i, QTableWidgetItem(str(column)))
+
             for i, row in enumerate(results):
                 for j, item in enumerate(row):
-                    print((i, j), item)
+                    print((i + 1, j), item)
                     self.container.findChildren(QTableWidget)[0]\
-                        .setItem(i, j, QTableWidgetItem(str(item)));
+                        .setItem(i + 1, j, QTableWidgetItem(str(item)))
  
     def create_container(self):
         self.container = QTabWidget()
