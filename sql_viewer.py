@@ -32,7 +32,7 @@ class SQLViewer(QDialog):
         results = db.execute(query)
         
         for clause in ['UPDATE', 'INSERT', 'DELETE']:
-            if clause in query:
+            if clause in query.upper():
                 return
         columns = results.keys()
         results = np.array([r for r in results])
