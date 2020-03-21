@@ -28,17 +28,17 @@ class SQLViewer(QDialog):
     @pyqtSlot()
     def query_db(self):
         with get_db() as db:
-            query = self.container.currentWidget().children()[1].toPlainText()
+            query = self.container.findChildren(QTextEdit)[0].toPlainText()
             results = db.execute(query)
             results = np.array([r for r in results])
-            self.container.children()[0].children()[0].children()[1].setRowCount(len(results))
-            self.container.children()[0].children()[0].children()[1].setColumnCount(results.shape[1])
+            self.container.findChildren(QTableWidget)[0].setRowCount(len(results))
+            self.container.findChildren(QTableWidget)[0].setColumnCount(results.shape[1])
             print(results)
             for i, row in enumerate(results):
                 for j, item in enumerate(row):
                     print((i, j), item)
-                    self.container.children()[0].children()[0].children()[1]\
-                        .setItem(i, j, QTableWidgetItem(item));
+                    self.container.findChildren(QTableWidget)[0]\
+                        .setItem(i, j, QTableWidgetItem(str(item)));
  
     def create_container(self):
         self.container = QTabWidget()
