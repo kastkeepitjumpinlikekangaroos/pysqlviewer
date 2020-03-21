@@ -8,8 +8,9 @@ from PyQt5.QtWidgets import (
 )
 import sys
 from PyQt5.QtCore import pyqtSlot
-from db import get_db
+from db import engine
 import numpy as np
+import sqlalchemy
 
 
 class SQLViewer(QDialog):
@@ -26,24 +27,29 @@ class SQLViewer(QDialog):
 
     @pyqtSlot()
     def query_db(self):
-        with get_db() as db:
-            query = self.container.findChildren(QTextEdit)[0].toPlainText()
-            results = db.execute(query)
-            columns = results.keys()
-            results = np.array([r for r in results])
-            self.container.findChildren(QTableWidget)[0]\
-                .setRowCount(len(results) + 1)
-            self.container.findChildren(QTableWidget)[0]\
-                .setColumnCount(results.shape[1])
+        query = self.container.findChildren(QTextEdit)[0].toPlainText()  
+        db = engine.connect()
+        results = db.execute(query)
+        
+        for clause in ['UPDATE', 'INSERT', 'DELETE']:
+            if clause in query:
+                return
+        columns = results.keys()
+        results = np.array([r for r in results])
+            
+        self.container.findChildren(QTableWidget)[0]\
+            .setRowCount(len(results) + 1)
+        self.container.findChildren(QTableWidget)[0]\
+            .setColumnCount(results.shape[1])
 
-            for i, column in enumerate(columns):
+        for i, column in enumerate(columns):
+            self.container.findChildren(QTableWidget)[0]\
+                .setItem(0, i, QTableWidgetItem(str(column)))
+
+        for i, row in enumerate(results):
+            for j, item in enumerate(row):
                 self.container.findChildren(QTableWidget)[0]\
-                    .setItem(0, i, QTableWidgetItem(str(column)))
-
-            for i, row in enumerate(results):
-                for j, item in enumerate(row):
-                    self.container.findChildren(QTableWidget)[0]\
-                        .setItem(i + 1, j, QTableWidgetItem(str(item)))
+                    .setItem(i + 1, j, QTableWidgetItem(str(item)))
 
     def create_container(self):
         self.container = QTabWidget()
